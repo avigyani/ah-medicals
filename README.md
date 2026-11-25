@@ -102,3 +102,7 @@ Package: `com.ahmedicals.inventory`, version 1.0.0+1, minSdk 21+.
 ## Phase 2 (not built)
 
 Billing / sales, purchase orders, GST reports, cloud backup, multi-user.
+
+## Build
+
+GitHub Actions builds the release APK on every push to main. Download it from the run's artifact `ah-medicals-apk` (`app-release.apk`).
