@@ -1,0 +1,38 @@
+name: Build AH MEDICALS APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.4'
+          channel: stable
+      # AGP 8.9.1 needs Java 17; the runner defaults to Java 25
+      # (build failed with "25.0.5"). Pin Java 17 before the build.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      # Binary platform files (Gradle wrapper jar, launcher PNGs) may not
+      # be stored in the repo — restore them from a fresh Flutter template.
+      - name: Restore binary platform files
+        run: |
+          flutter create --org com.ahmedicals --project-name ah_medicals_inventory --platforms android /tmp/ah-template
+          cp /tmp/ah-template/android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/
+          cp -r /tmp/ah-template/android/app/src/main/res/mipmap-* android/app/src/main/res/
+          rm -rf /tmp/ah-template
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ah-medicals-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
