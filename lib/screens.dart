@@ -1,4 +1,4 @@
-// AH MEDICALS — all screens. Owner: Ashifa (shown on Dashboard + About).
+// AH MEDICALS — all screens. Ashifa (shown on Dashboard + About).
 import 'package:flutter/material.dart';
 import 'db.dart';
 import 'models.dart';
@@ -146,7 +146,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Owner: $ownerName',
+                            ownerName,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.white,
@@ -736,8 +736,9 @@ class _MedicineFormScreenState extends State<MedicineFormScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _save,
-              child: Text(isEdit ? 'Save changes' : 'Add medicine'),
+              child: Text(isEdit ? 'Save changes' : 'Save medicine'),
             ),
+            const SizedBox(height: 32),
           ],
         ),
       ),
