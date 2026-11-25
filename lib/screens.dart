@@ -131,12 +131,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   // Shop header — owner name
                   Card(
                     color: Colors.teal.shade700,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
+                    child: const Padding(
+                      padding: EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             shopName,
                             style: TextStyle(
                               fontSize: 26,
@@ -144,16 +144,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             'Owner: $ownerName',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          const Text(
+                          SizedBox(height: 4),
+                          Text(
                             'Local inventory • Offline • No login',
                             style: TextStyle(
                               fontSize: 13,
@@ -273,7 +273,7 @@ class MedicineTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
-          backgroundColor: expiryColor(st).withOpacity(0.15),
+          backgroundColor: expiryColor(st).withValues(alpha: 0.15),
           child: Icon(Icons.medication,
               color: expiryColor(st)),
         ),
@@ -646,7 +646,7 @@ class _MedicineFormScreenState extends State<MedicineFormScreen> {
             _field(_generic, 'Generic name'),
             _field(_company, 'Manufacturer / Company'),
             DropdownButtonFormField<String>(
-              value: _category,
+              initialValue: _category,
               decoration: const InputDecoration(labelText: 'Category'),
               items: categories
                   .map((c) => DropdownMenuItem(value: c, child: Text(c)))
@@ -687,7 +687,7 @@ class _MedicineFormScreenState extends State<MedicineFormScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<double>(
-                    value: _gst,
+                    initialValue: _gst,
                     decoration: const InputDecoration(labelText: 'GST %'),
                     items: [0.0, 5.0, 12.0, 18.0]
                         .map((g) => DropdownMenuItem(
@@ -712,7 +712,7 @@ class _MedicineFormScreenState extends State<MedicineFormScreen> {
             ),
             _field(_rack, 'Rack / Location (e.g. A1)'),
             DropdownButtonFormField<String>(
-              value: _supplier.isEmpty ? null : _supplier,
+              initialValue: _supplier.isEmpty ? null : _supplier,
               decoration: const InputDecoration(labelText: 'Supplier'),
               items: _suppliers
                   .map((s) =>
@@ -821,7 +821,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: reason,
+                  initialValue: reason,
                   decoration: const InputDecoration(labelText: 'Reason'),
                   items: (isIn
                           ? ['Purchase', 'Return', 'Correction']
@@ -834,7 +834,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 if (isIn) ...[
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: supplier.isEmpty ? null : supplier,
+                    initialValue: supplier.isEmpty ? null : supplier,
                     decoration:
                         const InputDecoration(labelText: 'Supplier'),
                     items: suppliers
@@ -872,6 +872,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         ),
       ),
     );
+    if (!mounted) return;
     if (ok != true) return;
     final qty = int.tryParse(qtyCtrl.text.trim()) ?? 0;
     if (qty <= 0) {
@@ -1098,6 +1099,7 @@ class _SuppliersScreenState extends State<SuppliersScreen> {
         ],
       ),
     );
+    if (!mounted) return;
     if (ok == true) {
       if (nameCtrl.text.trim().isEmpty) {
         showMsg(context, 'Supplier name is required.');
@@ -1184,7 +1186,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor:
-                            (isIn ? Colors.green : Colors.red).withOpacity(0.15),
+                            (isIn ? Colors.green : Colors.red).withValues(alpha: 0.15),
                         child: Icon(isIn ? Icons.add : Icons.remove,
                             color: isIn ? Colors.green : Colors.red),
                       ),
