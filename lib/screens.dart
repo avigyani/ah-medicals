@@ -277,25 +277,33 @@ class MedicineTile extends StatelessWidget {
           child: Icon(Icons.medication,
               color: expiryColor(st)),
         ),
-        title: Row(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
-                medicine.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+            Text(
+              medicine.name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            if (medicine.isSample)
-              const Chip(
-                label: Text('SAMPLE', style: TextStyle(fontSize: 10)),
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-              ),
-            if (medicine.rxRequired)
-              const Chip(
-                label: Text('Rx', style: TextStyle(fontSize: 10)),
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
+            if (medicine.isSample || medicine.rxRequired)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Wrap(
+                  spacing: 6,
+                  children: [
+                    if (medicine.isSample)
+                      const Chip(
+                        label: Text('SAMPLE', style: TextStyle(fontSize: 10)),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                      ),
+                    if (medicine.rxRequired)
+                      const Chip(
+                        label: Text('Rx', style: TextStyle(fontSize: 10)),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                      ),
+                  ],
+                ),
               ),
           ],
         ),
@@ -1349,18 +1357,11 @@ class AboutScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 4),
-                  Text('Owner: $ownerName', style: TextStyle(fontSize: 16)),
+                  Text(ownerName, style: TextStyle(fontSize: 16)),
                   SizedBox(height: 12),
                   Text('Version 1.0-phase1 (Flutter)'),
                   SizedBox(height: 8),
-                  Text(
-                      'Medical store inventory — medicines, batch, expiry, stock, suppliers and alerts.'),
-                  SizedBox(height: 8),
-                  Text(
-                      'Local-only: all data stays on this phone (SQLite). No login, no server, no internet needed. Barcode scan needs camera permission.'),
-                  SizedBox(height: 8),
-                  Text(
-                      'Phase 2 (not built yet): billing / sales, purchase orders, GST reports, cloud backup, multi-user.'),
+                  Text('Made by Avi'),
                 ],
               ),
             ),
