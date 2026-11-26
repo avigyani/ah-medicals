@@ -1,11 +1,10 @@
-// AH MEDICALS — all screens. Ashifa (shown on Dashboard + About).
+// DawaKhata — all screens.
 import 'package:flutter/material.dart';
 import 'db.dart';
 import 'models.dart';
 import 'scanner.dart';
 
-const shopName = 'AH MEDICALS';
-const ownerName = 'Ashifa';
+const shopName = 'DawaKhata';
 
 void showMsg(BuildContext context, String msg) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
@@ -83,7 +82,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _load() async {
-    await AppDb.instance.seedIfEmpty();
     final meds = await AppDb.instance.allMedicines();
     if (!mounted) return;
     setState(() {
@@ -128,7 +126,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // Shop header — owner name
+                  // Shop header
                   Card(
                     color: Colors.teal.shade700,
                     child: const Padding(
@@ -141,14 +139,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            ownerName,
-                            style: TextStyle(
-                              fontSize: 16,
                               color: Colors.white,
                             ),
                           ),
@@ -1358,9 +1348,7 @@ class AboutScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 4),
-                  Text(ownerName, style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 12),
-                  Text('Version 1.0-phase1 (Flutter)'),
+                  Text('Version 1.0.0 (Flutter)'),
                   SizedBox(height: 8),
                   Text('Made by Avi'),
                 ],
