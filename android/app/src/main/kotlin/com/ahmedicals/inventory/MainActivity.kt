@@ -1,4 +1,4 @@
-package com.ahmedicals.inventory
+package com.dawakhata.app
 
 import io.flutter.embedding.android.FlutterActivity
 
