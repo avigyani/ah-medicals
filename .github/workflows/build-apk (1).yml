@@ -1,0 +1,66 @@
+name: Build DawaKhata APK + AAB
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.4'
+          channel: stable
+      # AGP 8.9.1 needs Java 17; the runner defaults to Java 25
+      # (build failed with "25.0.5"). Pin Java 17 before the build.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      # Binary platform files (Gradle wrapper jar, launcher PNGs) may not
+      # be stored in the repo — restore them from a fresh Flutter template.
+      - name: Restore binary platform files
+        run: |
+          flutter create --org com.dawakhata --project-name dawakhata --platforms android /tmp/dw-template
+          cp /tmp/dw-template/android/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/
+          cp -r /tmp/dw-template/android/app/src/main/res/mipmap-* android/app/src/main/res/
+          rm -rf /tmp/dw-template
+      # Upload keystore (AES-256 encrypted in the repo) — needs the
+      # UPLOAD_KEYSTORE_PASSPHRASE repo secret. Without it the AAB step
+      # is skipped and only the debug-signed APK builds.
+      - name: Prepare release signing
+        run: |
+          if [ -z "${{ secrets.UPLOAD_KEYSTORE_PASSPHRASE }}" ]; then
+            echo "UPLOAD_KEYSTORE_PASSPHRASE secret not set — AAB step will be skipped."
+            echo "HAS_SIGNING=false" >> $GITHUB_ENV
+          else
+            base64 -d android/upload-keystore.enc.b64 > /tmp/keystore.enc
+            openssl enc -d -aes-256-cbc -pbkdf2 -in /tmp/keystore.enc -out android/upload-keystore.p12 -pass pass:"${{ secrets.UPLOAD_KEYSTORE_PASSPHRASE }}"
+            {
+              echo "storePassword=${{ secrets.UPLOAD_KEYSTORE_PASSPHRASE }}"
+              echo "keyPassword=${{ secrets.UPLOAD_KEYSTORE_PASSPHRASE }}"
+              echo "keyAlias=dawakhata"
+              echo "storeFile=../upload-keystore.p12"
+              echo "storeType=PKCS12"
+            } > android/key.properties
+            echo "HAS_SIGNING=true" >> $GITHUB_ENV
+          fi
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dawakhata-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Build app bundle (Play Store)
+        if: env.HAS_SIGNING == 'true'
+        run: flutter build appbundle --release
+      - uses: actions/upload-artifact@v4
+        if: env.HAS_SIGNING == 'true'
+        with:
+          name: dawakhata-aab
+          path: build/app/outputs/bundle/release/app-release.aab
