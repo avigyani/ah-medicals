@@ -1,14 +1,14 @@
-// AH MEDICALS — inventory app, Phase 1 (Flutter).
-// Owner: Ashifa. Local-only, offline, no login, no server.
+// DawaKhata — inventory app, Phase 1 (Flutter).
+// Local-only, offline, no login, no server.
 import 'package:flutter/material.dart';
 import 'screens.dart';
 
 void main() {
-  runApp(const AhMedicalsApp());
+  runApp(const DawaKhataApp());
 }
 
-class AhMedicalsApp extends StatelessWidget {
-  const AhMedicalsApp({super.key});
+class DawaKhataApp extends StatelessWidget {
+  const DawaKhataApp({super.key});
 
   @override
   Widget build(BuildContext context) {
