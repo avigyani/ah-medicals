@@ -1,5 +1,5 @@
-name: ah_medicals_inventory
-description: "AH MEDICALS — medical store inventory: medicines, batch, expiry, stock, suppliers, alerts. Local-only, offline, no login, no server."
+name: dawakhata
+description: "DawaKhata — medical store inventory: medicines, batch, expiry, stock, suppliers, alerts. Local-only, offline, no login, no server."
 publish_to: "none"
 version: 1.0.0+1
 
