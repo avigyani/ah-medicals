@@ -1,14 +1,14 @@
-# AH MEDICALS — Inventory App (Flutter, Phase 1)
+# DawaKhata — Medical Store Inventory (Flutter, Phase 1)
 
-Medical store inventory for **AH MEDICALS — Owner: Ashifa**.
-Local-only, offline, no login, no server, no Firebase. All data stays on
-the phone in SQLite.
+Medical store inventory for **any** medical shop — generic app, no shop
+name or owner hardcoded. Local-only, offline, no login, no server, no
+Firebase. All data stays on the phone in SQLite.
 
 ## Phase 1 features
 
 - **Dashboard** — total medicines, total stock value (stock × purchase
   price), low-stock count, near-expiry (90 days) count, expired count.
-  Tap any card to see that list. Header shows shop name + Owner: Ashifa.
+  Tap any card to see that list.
 - **Medicines** — search by name / generic / company / batch / barcode;
   filter chips: All, Low Stock, Near Expiry, Expired; sort by name or
   expiry date. Each row shows name, company, batch, expiry (red = expired,
@@ -29,80 +29,59 @@ the phone in SQLite.
 - **Suppliers** — add name + phone; pick a supplier when adding stock
   or a medicine.
 - **Reports** — stock value summary, low-stock list, near-expiry list,
-  expired list, and "Delete all SAMPLE medicines".
-- **Seed data** — 12 realistic sample medicines (Dolo 650, Novamox 500,
-  Azithral 500, Cetzine, Electral ORS, Pan 40, Glycomet 500, Uprise-D3,
-  Ascoril LS, Augmentin 625, Volini Gel, Crocin Advance) + 2 sample
-  suppliers, all marked SAMPLE and deletable, so the app works at once.
-  Seed includes 1 expired, 1 expiring within 30 days, 1 within 90 days,
-  and 2 low-stock items to show the alerts.
+  expired list, and "Delete all SAMPLE medicines" (for old installs that
+  still carry sample data).
 - **Barcode scan** — camera scan via `mobile_scanner` (CAMERA permission
   in the manifest). Manual barcode entry always works as fallback.
+
+The app starts empty — add your own medicines. No sample data is seeded.
 
 ## Project structure
 
 ```
-ah-medicals-inventory/
+dawakhata/
   pubspec.yaml            # sqflite, path, mobile_scanner
   lib/
     main.dart             # App + bottom navigation (5 tabs)
     models.dart           # Medicine / Supplier / StockMovement + pure logic
-    db.dart               # SQLite helper (CRUD, movements, seed)
-    seed.dart             # 12 sample medicines + 2 suppliers
+    db.dart               # SQLite helper (CRUD, movements)
     scanner.dart          # Barcode scan screen
     screens.dart          # Dashboard, Medicines, Form, Detail, Suppliers,
                           # History, Reports, About
   test/
-    logic_test.dart       # Expiry maths, low stock, stock value, seed sanity
-  .github/workflows/build-apk.yml   # GitHub Actions APK build
+    logic_test.dart       # Expiry maths, low stock, stock value
+  .github/workflows/build-apk.yml   # GitHub Actions APK + AAB build
 ```
 
-## Build the APK (GitHub Actions — the reliable path)
+## Build (GitHub Actions — the reliable path)
 
 The local VM cannot run Gradle: the sandbox blocks Java TCP loopback,
-so the Gradle daemon (Java → Java over 127.0.0.1) cannot communicate
-("Could not receive a message from the daemon"). `flutter analyze` and
-`flutter test` pass locally; the APK must be built on GitHub Actions,
-exactly like Avi AI was.
+so the Gradle daemon (Java → Java over 127.0.0.1) cannot communicate.
+`flutter analyze` and `flutter test` pass locally; the APK/AAB must be
+built on GitHub Actions.
 
-1. On github.com, create a new repo, e.g. `ah-medicals-inventory`
-   (you create it — Muse cannot create repos).
-2. Upload the ZIP contents to the repo (or `git push` from your PC).
-3. Go to the repo → **Actions** → **Build AH MEDICALS APK** → **Run
-   workflow** (it also runs on every push to `main`).
-4. When it finishes (green tick), open the run → **Artifacts** →
-   download **ah-medicals-apk** → install `app-release.apk` on the phone.
+Repo: `avigyani/ah-medicals` (branch `main`). On every push, the
+**Build DawaKhata APK + AAB** workflow runs: `flutter pub get` →
+`analyze` → `test` → `flutter build apk --release` → artifact
+**dawakhata-apk** (`app-release.apk`).
 
-Package: `com.ahmedicals.inventory`, version 1.0.0+1, minSdk 21+.
+The Play Store bundle (**dawakhata-aab**, `app-release.aab`) builds only
+when the repo secret `UPLOAD_KEYSTORE_PASSPHRASE` exists — it decrypts
+the upload keystore (`android/upload-keystore.enc.b64`, AES-256) and
+signs the bundle with it. Without the secret the AAB step is skipped
+and the APK still builds (debug-signed, for direct install testing).
 
-## Verified here (2026-11-26)
-
-- `flutter pub get` — OK (sqflite 2.4.2, mobile_scanner 7.x resolved).
-- `flutter analyze` — no errors (14 info-level lints only).
-- `flutter test` — 6/6 passed (expiry day counts, status bands,
-  low-stock threshold, stock value, date validation, seed counts).
-- Local `flutter build apk --release` — **BLOCKED, not a code problem**:
-  the sandbox intercepts Java TCP loopback connections
-  ("muse: Other TCP connections is turned off for this assistant"),
-  so the Gradle daemon cannot start. Verified with a plain Java socket
-  test: Python/curl loopback works, Java loopback is intercepted.
-  The APK must come from the GitHub Actions workflow above.
+Package: `com.dawakhata.app`, version 1.0.0+1, minSdk 21+.
 
 ## Phone test (his step)
 
-1. Install the APK, open it — Dashboard shows 12 SAMPLE medicines,
-   stock value, 2 low stock, 2 near expiry, 1 expired.
-2. Medicines → search "Dolo", filter "Expired" (Ascoril LS), sort by Expiry.
-3. Open Uprise-D3 → Stock In 10 → stock becomes 15; Stock Out 3 (Sale)
-   → History shows both.
-4. Try Stock Out on Ascoril LS (expired) with reason Sale — it must refuse.
-5. Add a real medicine with the camera scan button; check the barcode fills in.
-6. Reports → check the lists, then "Delete all SAMPLE medicines".
+1. Install the APK, open it — Dashboard starts empty (0 medicines).
+2. Add a medicine (Add medicine → Save medicine), check it appears.
+3. Stock In 10 → stock rises; Stock Out 3 (Sale) → History shows both.
+4. Try Stock Out on an expired medicine with reason Sale — it must refuse.
+5. Add a medicine with the camera scan button; check the barcode fills in.
+6. Reports → check the lists.
 
 ## Phase 2 (not built)
 
 Billing / sales, purchase orders, GST reports, cloud backup, multi-user.
-
-## Build
-
-GitHub Actions builds the release APK on every push to main. Download it from the run's artifact `ah-medicals-apk` (`app-release.apk`).
