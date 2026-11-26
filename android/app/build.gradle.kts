@@ -1,3 +1,8 @@
+// Fully-qualified java.* names do NOT resolve in this Kotlin DSL script
+// (Gradle reports "Unresolved reference: util/io") — import them instead.
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -7,11 +12,15 @@ plugins {
 
 // Release signing from android/key.properties when present
 // (CI decrypts the upload keystore into it); debug keys otherwise.
-val keystoreProperties = java.util.Properties()
+val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
+// Resolve the store file at top level: file() does not resolve inside
+// the nested signingConfigs lambda ("Expression expected, but a package
+// name found"). Path is relative to android/app/, as key.properties has it.
+val releaseStoreFile = keystoreProperties["storeFile"]?.let { file(it as String) }
 
 android {
     namespace = "com.dawakhata.app"
@@ -46,7 +55,7 @@ android {
             create("release") {
                 keyAlias = keystoreProperties["keyAlias"] as String?
                 keyPassword = keystoreProperties["keyPassword"] as String?
-                storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
+                storeFile = releaseStoreFile
                 storePassword = keystoreProperties["storePassword"] as String?
                 storeType = keystoreProperties["storeType"] as String?
             }
