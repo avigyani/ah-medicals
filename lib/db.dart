@@ -1,8 +1,7 @@
-// AH MEDICALS — local SQLite storage (sqflite). Phone only, offline.
+// DawaKhata — local SQLite storage (sqflite). Phone only, offline.
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'models.dart';
-import 'seed.dart';
 
 class AppDb {
   static final AppDb instance = AppDb._();
@@ -13,7 +12,7 @@ class AppDb {
     if (_db != null) return _db!;
     final dir = await getDatabasesPath();
     _db = await openDatabase(
-      join(dir, 'ah_medicals.db'),
+      join(dir, 'dawakhata.db'),
       version: 1,
       onCreate: (d, v) async {
         await d.execute('''
@@ -126,21 +125,5 @@ class AppDb {
     final d = await db;
     final rows = await d.query('movements', orderBy: 'id DESC', limit: 200);
     return rows.map(StockMovement.fromMap).toList();
-  }
-
-  // ---- Seed ----
-  Future<void> seedIfEmpty() async {
-    final d = await db;
-    final count = Sqflite.firstIntValue(
-        await d.rawQuery('SELECT COUNT(*) FROM medicines'));
-    if (count != null && count > 0) return;
-    final batch = d.batch();
-    for (final m in sampleMedicines) {
-      batch.insert('medicines', m.toMap()..remove('id'));
-    }
-    for (final s in sampleSuppliers) {
-      batch.insert('suppliers', s.toMap()..remove('id'));
-    }
-    await batch.commit(noResult: true);
   }
 }
